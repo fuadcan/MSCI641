@@ -18,7 +18,7 @@ if __name__ == "__main__":
 
     ## Flag abbreviations, emails and websites
     ## For abbreviations
-    # comments = re.sub(r'([\s.,!?]((?:[a-zA-Z]\.){2,}))',r' <<\2>> ',comments) # (["\s.,!?](([a-zA-Z]\.){2,}[a-zA-Z]?))
+    comments = re.sub(r'(["\s.,!?](([a-zA-Z]\.){2,}[a-zA-Z]?))',r' <<\2>> ',comments) # ([\s.,!?]((?:[a-zA-Z]\.){2,}))
 
     ## For emails
     comments = re.sub(r'([A-Za-z0-9]*@[A-Za-z0-9]*[.]com)',r' <<\1>> ',comments)
