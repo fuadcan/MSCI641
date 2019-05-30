@@ -21,30 +21,35 @@ if __name__ == "__main__":
     comments = re.sub(r'(["\s.,!?](([a-zA-Z]\.){2,}[a-zA-Z]?))',r' <<\2>> ',comments) # ([\s.,!?]((?:[a-zA-Z]\.){2,}))
 
     ## For emails
-    comments = re.sub(r'([A-Za-z0-9]*@[A-Za-z0-9]*[.]com)',r' <<\1>> ',comments)
+    comments = re.sub(r'([A-Za-z0-9]+@[A-Za-z0-9]+[.]com)',r' <<\1>> ',comments)
 
     ## For http links
-    comments = re.sub(r'(http\S*[A-Za-z]+[.]\w{,3}[^\s.)]*)',r' <<URL>> ',comments)
+    comments = re.sub(r'(http\S*[A-Za-z]+[.]\w{1,3}[^\s.)]*)',r' <<URL>> ',comments)
 
     ## For other links
-    comments = re.sub(r'([A-Za-z]+[.]com)',r' <<\1>> ',comments)
+    comments = re.sub(r'([A-Za-z0-9]+[.]com)',r' <<\1>> ',comments)
+
+    ## Converting @'s to at
+    # comments = re.sub(r'\s@\s',' at ',comments)
 
     ## Replacing urls back
     def callback(match):
-        return next(callback.v)
+        return('<<' + next(callback.v) + '>>')
     callback.v=iter(tuple(urls))
 
     if len(urls) == len(re.findall(r'<<URL>>',comments)):
-        comments = re.sub(r'<<URL>>',callback,comments)
-        print('[LOG]: Replaced urls back to their placeholders')
+        comments = re.sub(r'<<URL>>', callback, comments)
+        print('[LOG]: Replaced urls back with their placeholders')
 
     tokens_comments = [re.findall(r"<<.*?>>|[A-Za-z0-9]+|[^\w\s]", comment) for comment in \
               comments.split('<<EOS>><<BOS>>')] # [A-Za-z0-9]+[-_][A-Za-z0-9]+|
     print('[LOG]: Precleaned the file')
 
     def token_cleaner(token):
-        if re.search("[!\"#<>$%&()*+/:;<=>@[\\]^`{|}~\t\n]",token):
-            token = re.sub("[!\"#$%&()*+/:;<=>@[\\]^`{|}~\t\n']","",token)
+        if re.search('[A-Za-z0-9]+@[A-Za-z0-9]+[.]com|http\S*[A-Za-z0-9]+[.]\w{0,3}[^\s.)]*|[A-Za-z0-9]+[.]com',token):
+            token = token.replace('<','').replace('>','')
+        elif re.search("[!\"#$%&()@*+/:;<=>[\\]^`{|}~\t\n]",token):
+            token = re.sub("[!\"#$%&()@*+/:;<=>[\\]^`{|}~\t\n]","",token)
         return(token)
 
     tokens_comments = [[token_cleaner(token) for token in sentence] for sentence in tokens_comments]
