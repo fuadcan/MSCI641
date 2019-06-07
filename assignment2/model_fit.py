@@ -10,12 +10,12 @@ import pickle, sys, re
 
 # ngram_range   = (1,1)
 # verbose = True
-path_list = ['assignment2/neg_test.pickle',
-'assignment2/neg_train.pickle',
-'assignment2/neg_val.pickle',
-'assignment2/pos_test.pickle',
-'assignment2/pos_train.pickle',
-'assignment2/pos_val.pickle']
+path_list = ['neg_test_no_stopword.pickle',
+'neg_train_no_stopword.pickle',
+'neg_val_no_stopword.pickle',
+'pos_test_no_stopword.pickle',
+'pos_train_no_stopword.pickle',
+'pos_val_no_stopword.pickle']
 
 ##
 
@@ -23,7 +23,6 @@ def model_fit(ngram_range,path_list,verbose=True):
     def print_message(*argv, end = '\n', verbose=verbose):
         if verbose:
             print(*argv, end=end)
-
 
     if sum(ngram_range) == 2:
         print_message('[LOG]: Learning over Unigrams')
@@ -56,7 +55,7 @@ def model_fit(ngram_range,path_list,verbose=True):
     X_val   = ['<<' + '>><<'.join(comment) + '>>' for comment in X_val]
 
     ##
-    print_message('[LOG]: Inputting tokens to sklearn', end = '')
+    print_message('[LOG]: Inputting tokens to sklearn ', end = '')
     ## Input to sklearn
     vect = CountVectorizer(token_pattern='<<(.*?)>>',ngram_range=ngram_range)
     vect.fit(X_train)
@@ -77,19 +76,19 @@ def model_fit(ngram_range,path_list,verbose=True):
         nb = MultinomialNB(alpha=alpha)
         nb.fit(X_train_mat,y_train)
         y_pred_class = nb.predict(X_val_mat)
-        print_message('[alpha=',alpha/100,']',metrics.accuracy_score(y_val, y_pred_class))
+        print_message('[alpha=',alpha,']',metrics.accuracy_score(y_val, y_pred_class))
         # print(metrics.f1_score(y_val, y_pred_class))
         return(metrics.accuracy_score(y_val, y_pred_class))
 
     print_message('[LOG]: Tuning alpha over validation set')
-    val_results = [(alpha,calculate_accuracy(alpha)) for alpha in range(1,101)]
-    alpha_max = [alpha/100 for alpha, acc in val_results if acc == max([acc for a,acc in val_results])][0]
+    val_results = [(alpha/100,calculate_accuracy(alpha/100)) for alpha in range(0,202,2)]
+    alpha_max = [alpha for alpha, acc in val_results if acc == max([acc for a,acc in val_results])][0]
     print_message('- DONE')
 
     nb = MultinomialNB(alpha=alpha_max)
     nb.fit(X_train_mat,y_train)
     y_pred_class = nb.predict(X_test_mat)
-    print_message('Accuracy:', metrics.accuracy_score(y_test, y_pred_class))
-    print_message('F1 score:', metrics.f1_score(y_test, y_pred_class))
+    print_message('Accuracy (Test):', metrics.accuracy_score(y_test, y_pred_class))
+    print_message('Test F1 score (Test):', metrics.f1_score(y_test, y_pred_class))
     print_message('[LOG]: DONE')
     return(metrics.accuracy_score(y_test, y_pred_class))

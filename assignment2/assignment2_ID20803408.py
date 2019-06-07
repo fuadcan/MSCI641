@@ -13,9 +13,9 @@ if __name__ == "__main__":
     acc_unibi = model_fit((1,2),path_list)
     ##
 
-    print('###########################################')
-    print('######## Calculated Accuracies ############')
+    print('################################################')
+    print('######## Calculated Test Accuracies ############')
     print('Unigram:', acc_uni)
     print('Bigram:', acc_bi)
     print('Unigram + Bigram:', acc_unibi)
-    print('###########################################')
+    print('################################################')
