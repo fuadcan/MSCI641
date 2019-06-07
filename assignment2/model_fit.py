@@ -10,12 +10,6 @@ import pickle, sys, re
 
 # ngram_range   = (1,1)
 # verbose = True
-path_list = ['neg_test_no_stopword.pickle',
-'neg_train_no_stopword.pickle',
-'neg_val_no_stopword.pickle',
-'pos_test_no_stopword.pickle',
-'pos_train_no_stopword.pickle',
-'pos_val_no_stopword.pickle']
 
 ##
 
@@ -53,6 +47,11 @@ def model_fit(ngram_range,path_list,verbose=True):
     X_train = ['<<' + '>><<'.join(comment) + '>>' for comment in X_train]
     X_test  = ['<<' + '>><<'.join(comment) + '>>' for comment in X_test]
     X_val   = ['<<' + '>><<'.join(comment) + '>>' for comment in X_val]
+
+    # print_message('[LOG]: Cleaning duplicating letters')
+    # X_train = [re.sub(r"(\w)\1{3,}",r'\1', comment) for comment in X_train]
+    # X_test  = [re.sub(r"(\w)\1{3,}",r'\1', comment) for comment in X_test]
+    # X_val   = [re.sub(r"(\w)\1{3,}",r'\1', comment) for comment in X_val]
 
     ##
     print_message('[LOG]: Inputting tokens to sklearn ', end = '')
