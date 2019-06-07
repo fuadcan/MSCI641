@@ -1,0 +1,11 @@
+# With stopwords
+python assignment2_ID20803408.py $(ls -d !(*stopword.*) | grep .pickle)
+# OR
+python assignment2_ID20803408.py pos_train.pickle neg_train.pickle pos_test.pickle neg_test.pickle pos_val.pickle neg_val.pickle 
+
+# Without stopwords
+python assignment2_ID20803408.py $(ls *stopword* | grep .pickle)
+# OR
+python assignment2_ID20803408.py pos_train_no_stopword.pickle neg_train_no_stopword.pickle pos_test_no_stopword.pickle neg_test_no_stopword.pickle pos_val_no_stopword.pickle neg_val_no_stopword.pickle
+
+
