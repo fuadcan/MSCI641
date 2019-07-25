@@ -1,0 +1,316 @@
+
+\documentclass[17pt]{beamer}
+\usepackage{hyperref}
+\usetheme{Boadilla}
+%\usecolortheme{beaver}
+\useinnertheme{circles}
+%\useoutertheme{split}
+\definecolor{newRed}{RGB}{24, 24, 180}
+%\definecolor{newRed}{HTML}{b22222}
+%\definecolor{darkRed}{RGB}{150, 40, 40}
+\usecolortheme[named=newRed]{structure}
+\usepackage{kerkis}
+\setbeamertemplate{footline}[page number]{}
+\setbeamertemplate{navigation symbols}{}
+
+\usepackage{multimedia}
+\usepackage{media9}
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath,amsthm}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{multirow}
+\usepackage{caption}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\setbeamerfont{section number projected}{%
+	family=\rmfamily,series=\bfseries,size=\normalsize}
+\setbeamercolor{section number projected}{bg=white,fg=white}
+
+\title{Fantastic Beasts and Where to Find Them}
+
+\subtitle{Out of the Box Sentiment Classification}
+\author{Fuat Can Beylunio\u{g}lu}
+\date{\today}
+\institute{\includegraphics[height=1cm,width=1cm]{uwaterloo.png}}
+
+
+
+\begin{document}
+
+\begin{frame}
+	\maketitle
+\end{frame}
+
+\begin{frame}
+	\huge Fuat Can Beylunioğlu
+\end{frame}
+\section{Introduction}
+\begin{frame}%{Problem Description}
+	\centering
+	(Siz) (bizim)\\[11pt] Çekoslovakya-lı-laş-tır-abil-di-k-ler-imiz-den misin-iz?
+\end{frame}
+\begin{frame}%{The Challenge}
+	\begin{itemize}
+		\item Turkish is an agglutinating language having a complex morphology.
+		\item Due to its complex structure rule based approaches couldn't achieve good accuracy and no good baseline has been proposed. 
+		\item No big corpus available to train contextualized word representations or multi-task learning
+	\end{itemize}
+	
+\end{frame}
+
+
+\begin{frame}%{Data}
+		\begin{table}[htbp]
+		\centering
+		\caption{\# of online comments per company and platform}
+		\begin{tabular}{c|lr}
+			\toprule
+			\multicolumn{1}{l|}{Corpus} & \multicolumn{2}{c}{Source} \\
+			\midrule
+			\multirow{3}[2]{*}{Technology} & Twitter & 196079 \\
+			& Facebook & 22767 \\
+			& Web   & 55960 \\
+			\midrule
+			\multirow{3}[2]{*}{Other} & Twitter &  18080\\
+			& Facebook + Web & 21435\\
+			& & \\			\bottomrule
+		\end{tabular}%
+		\label{table:counts}
+	\end{table}%
+	
+\end{frame}
+
+
+\begin{frame}%{Data, Sentiment Distribution}
+	\begin{table}[htbp]
+		\centering
+		\caption{Distribution of sentiment categories w.r.t. company}
+		\begin{tabular}{lrrrr}
+			\toprule
+			& \multicolumn{1}{l}{Positive} & \multicolumn{1}{l}{Neutral } & \multicolumn{1}{l}{Negative} & \multicolumn{1}{l}{Total} \\
+			\midrule
+			Technology & 14.87\% & 58.36\% & 26.77\% & 274806 \\
+			Insurance & 7.17\% & 52.79\% & 40.05\% & 18721 \\
+			Car   & 3.35\% & 93.29\% & 3.36\% & 11943 \\
+			Rental 1 & 9.58\% & 78.29\% & 12.13\% & 3340 \\
+			Rental 2 & 10.17\% & 89.22\% & 0.62\% & 5508 \\
+			\bottomrule
+		\end{tabular}%
+		\label{table:sentiment_distribution}
+	\end{table}%
+\end{frame}
+
+
+\begin{frame}%{Objectives}
+	\begin{itemize}
+		\item Developing a Twitter sentiment classifier based on the company's own tweet corpus.
+		\item Developing a social media sentiment classifier (Twitter, Facebook and other web) using company's own corpus.
+		\item Developing a general social media sentiment classifier
+	\end{itemize}
+		
+\end{frame}
+
+\begin{frame}%{Tokenization}
+	\begin{enumerate}
+		\item Word tokens
+		\begin{itemize}
+			\item "Laubalilikten" "hoşlanmam" "damat"
+		\end{itemize}
+		\item Stem \& Suffixes
+		\begin{itemize}
+			\item "Laubali", "lik", "ten", " ", "hoşlan", "ma", "m", " ", "damat"
+		\end{itemize}
+		\item Uni+Bigrams -  r"\textbackslash S\{1,2\}|\textbackslash s"
+		\begin{itemize}
+			\item "La", "ub", "al", "il", "ik", "te", "n", " ", "ho", "şl", "an", "ma", "m", " ", "da", "ma", "t"
+		\end{itemize}
+	\end{enumerate}
+\end{frame}
+
+\begin{frame}%{Evaluation Benchmarks}
+	
+	\begin{itemize}
+		\item Inside the box classification 
+		\begin{itemize}
+			\item (Tech Tweet -> Tech Tweet)
+		\end{itemize}
+        \item Out of platform classification
+        \begin{itemize}
+        	\item (Tech Tweet -> Tech Other)
+        \end{itemize}
+        \item Out of topic classification
+      	\begin{itemize}
+        	\item (Tech Tweet -> All Other)
+        \end{itemize}
+        
+	\end{itemize}
+along with using
+\begin{itemize}
+	\item 100\% 
+	\item 50\%
+	\item 25\%
+	\item and 12.5\% of the training set
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\begin{table}[htbp]
+		\caption*{Accuracy by Task}
+		\scriptsize
+		\begin{tabular}{c|c|r|r|r|r}
+			Task & Model (All CNN) & 12.50\% & 25.00\% & 50.00\% & 100.00\% \\ 
+			\midrule
+			Inside & word & 94.08\% & 94.92\% & 96.44\% & 99.63\% \\ 
+			the & suffix + stem & 94.36\% & \textbf{94.95\%} & \textbf{96.56\%} & 99.66\% \\ 
+			Box & char & \textbf{93.84\%} & 94.77\% & 96.31\% & \textbf{99.72\%} \\ 
+			\midrule
+			Out & word & 85.46\% & 85.30\% & 85.56\% & 86.39\% \\ 
+			of & suffix + stem & \textbf{86.04\%} & 85.24\% & 86.22\% & \textbf{87.21\%} \\ 
+			Platform & char & 84.70\% & \textbf{85.99\%} & \textbf{86.46\%} & 85.10\% \\ 
+			\midrule
+			Out of  & word & 80.88\% & 80.65\% & 78.76\% & 79.94\% \\ 
+			Platform & suffix + stem & \textbf{86.52\%} & \textbf{83.62\%} & \textbf{84.74\%} & \textbf{84.07\%} \\ 
+			and Topic & char & 82.13\% & 82.98\% & 82.49\% & 82.23\% \\ 
+			\midrule
+			Out & word & 83.31\% & 85.12\% & 85.33\% & 80.78\% \\ 
+			of & suffix + stem & \textbf{86.62\%} & \textbf{85.60\%} & \textbf{86.41\%} & \textbf{85.41\%} \\ 
+			Topic & char & 82.19\% & 79.69\% & 77.20\% & 82.35\% \\ 
+			\midrule
+		\end{tabular}
+		\label{}
+	\end{table}
+	
+\end{frame}
+\begin{frame}
+	\includegraphics[height=3cm,width=3cm]{uwaterloo_logo.png}
+	\includegraphics[height=5cm,width=5cm]{uwaterloo_logo.png}
+\end{frame}
+\end{document}
+
+\subsection*{Team}
+The team has one member, Fuat Can Beylunio\u{g}lu - 20803408
+
+\subsection*{Problem Description}
+Turkish NLP has been a major challenge as it is an agglutinating language having a complex morphology and is hard to stemize. Due to its complex structure rule based approaches couldn't achieve good accuracy and no good baseline has been proposed. This is challenging researchers, engineers and decision makers aiming to develop systems to analyze bulk texts to have an insight about their data.
+
+This project aims to develop a model to categorize social media and other web comments into categories. In particular our dataset consists of online comments written for 5 different companies and labeled based on the tone the message is conveyed, i.e. sentiment. As our largest corpus consists of tweets written for a technology company, we will mainly be working on the dataset involving 200,000 labeled instances, to increase good enough classification accuracy and develop insight about what type of comments have been written. However we will also be addressing generalizability of this model on the other data too. To summarize our main goal is:
+
+\begin{itemize}
+	\item Developing a Twitter sentiment classifier based on the company's own tweet corpus.
+\end{itemize}
+
+But we will also be addressing generalizability, therefore the additional goals are:
+
+\begin{itemize}
+	\item Developing a social media sentiment classifier (Twitter, Facebook and other web) using company's own corpus.
+	\begin{itemize}
+		\item Maximizing accuracy of model trained on tweets on comments of other companies,
+		\item Maximizing accuracy of model trained on tweets written in a certain time period on a further time period.
+		\item Maximizing accuracy of model trained on tweets on other platforms.
+	\end{itemize} 
+	\item Developing a general social media sentiment classifier
+\end{itemize}
+
+\subsection*{Data}
+The data is shared by a digital marketing company under an agreement that prevents data to be shared publicly. Originally it is prepared for media monitoring reports to 5 companies operating in areas of technology and home appliances, car manufacturing, insurance and car rental. The size of corpora are differing, with major one being the technology company's data and majority of comments are sourced from Twitter. In sequel and following reports, for sake of privacy, we will refer to the companies as Technology, Car, Insurance, Rental 1 and Rental 2. In Table 1 and 2 we present number of online comments of companies written in different platforms, and distribution of comments with respect to sentiment categories respectively.
+
+
+
+\begin{table}[htbp]
+	\centering
+	\caption{\# of online comments per company and platform}
+	\begin{tabular}{c|lr}
+		\toprule
+		\multicolumn{1}{l|}{Corpus} & \multicolumn{2}{c}{Source} \\
+		\midrule
+		\multirow{3}[2]{*}{Technology} & Twitter & 196079 \\
+		& Facebook & 22767 \\
+		& Web   & 55960 \\
+		\midrule
+		\multirow{3}[2]{*}{Insurance} & Twitter & 5423 \\
+		& Facebook & 3185 \\
+		& Other & 10115 \\
+		\midrule
+		\multirow{2}[2]{*}{Car} & Twitter & 4868 \\
+		& Other & 7075 \\
+		\midrule
+		\multirow{2}[2]{*}{Rental 1} & Twitter & 2550 \\
+		& Other & 790 \\
+		\midrule
+		\multirow{2}[2]{*}{Rental 2} & Twitter & 5239 \\
+		& Other & 270 \\
+		\bottomrule
+	\end{tabular}%
+	\label{table:counts}
+\end{table}%
+
+
+
+\begin{table}[htbp]
+	\centering
+	\caption{Distribution of sentiment categories w.r.t. company}
+	\begin{tabular}{lrrrr}
+		\toprule
+		& \multicolumn{1}{l}{Positive} & \multicolumn{1}{l}{Neutral } & \multicolumn{1}{l}{Negative} & \multicolumn{1}{l}{Total} \\
+		\midrule
+		Technology & 14.87\% & 58.36\% & 26.77\% & 274806 \\
+		Insurance & 7.17\% & 52.79\% & 40.05\% & 18721 \\
+		Car   & 3.35\% & 93.29\% & 3.36\% & 11943 \\
+		Rental 1 & 9.58\% & 78.29\% & 12.13\% & 3340 \\
+		Rental 2 & 10.17\% & 89.22\% & 0.62\% & 5508 \\
+		\bottomrule
+	\end{tabular}%
+	\label{table:sentiment_distribution}
+\end{table}%
+
+
+\subsection*{Baseline}
+As a baseline we employed linear models, i.e. Multinomial Naive Bayesian and Logistic Regression models. Both models have bag of words assumption and tend not to capture patterns. To cover this drawback we also trained the models on unigrams and bigrams.
+
+Since our main goal is to develop a sentiment classifier on tweets of Technology company, our current reports are based on this corpus. We will be using different models (unigram character model, ngram character model, sub-word level model etc.) to add over this baseline. Our additional goals will also be compared with this baseline to answer the questions concerning generalizability.
+
+\subsection*{Evaluation Methodology}
+The data is split into train, validation and test set for traditional way to construct a model. Each trained model are tested over test set and the success is measured using common metrics, i.e. accuracy, f-score and confusion matrix. Our main aim is to train a model having less false positive and false negatives however in practice companies value negative comments more than neutral and postive ones. Therefore we have two goals, either (i) to reduce overall mis-classifications (based on three sentiment classes), or (ii) to reduce misclassified negative comments w.r.t. two classes, negative vs. non-negative.
+
+\subsection*{Results}
+Bearing the difficulties of NLP in Turkish our baseline models surprisingly work well. When neutral comments are excluded, Naive Bayesian classifier has 97.3\% accuracy. However when neutral comments are included, accuracy reduces to 93.0\% which can be considered as a good enough baseline accuracy. To set the bar higher we trained our model on Unigram+Bigrams, calibrated smoothing parameter, $\alpha$ and also trained a logistic regression model. Table \ref{table:baseline} presents the results:
+
+
+\begin{table}[!htbp]
+	\centering
+	\caption{Baseline test accuracies}
+	\begin{tabular}{ccrr}
+		\toprule
+		Goal & Tokens & Naive Bayesian & Logistic Reg. \\
+		\midrule
+		3 class & Unigram & 93.0\% & 94.3\% \\
+		& Uni+Bigrams & 93.8\% & \textbf{94.7\%} \\
+		\midrule
+		Neg. vs. Non-neg.  & Unigram & 94.1\% & 96.4\% \\
+		 & Uni+Bigrams & 96.1\% & \textbf{96.5\%} \\
+		\bottomrule
+	\end{tabular}%
+	\label{table:baseline}
+\end{table}%
+
+As seen in the table, logistic regression outperforms naive bayesian model and the dataset enlarged with bigrams performs better. Considering unrealistic assumption of models, this level of accuracy is not expected. The reason could be the structure of Turkish, in which each word correspond to many words in English. For example words (e.g. "to", "which", "from" etc.), and the tenses (present, past, continuous etc.) correspond to different suffixes; and using subjects such as "I", "you", "we" is usually redundant since they are reflected as other suffixes. Therefore each words by default correspond to a pattern, which overcomes the difficulties that could arise from the assumptions.
+
+\subsection*{Additional Results and Further Direction}
+We further employed LSTM on the tweet corpus. In the experiments we used a simpler tokenizer and trained only for negative vs. non-negative classes. Currently models having 1 hidden LSTM layer and Bi-LSTM layers yielded 96.0\% and 96.2\% accuracy respectively. Although these results are not high as expected, more detailed investigation is required.
+
+In the following reports we will be focusing on:
+\begin{itemize}
+	\item Different RNN settings, e.g. different number of hidden nodes having LSTM, GRU or Bi-LSTM layers,
+	\item Enriching word embeddings by enlarging our corpus with a popular newspaper (H\"urriyet) to capture more associations,
+	\item Employing CNN and inputting more than one embeddings matrix (trained on news and tweet corpus separately),
+	\item Employing unigram/ngram character level models, sub-word level models, and models trained on stems + suffixes vocabulary,
+	\item Developing models to achieve previously mentioned \textit{additional} goals (see Problem Description)..
+\end{itemize}
+
+
+
+\end{document}
